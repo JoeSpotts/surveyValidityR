@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Analysis Application: Complete Vignette</title>
+    <style>
+        body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; line-height: 1.6; }
+        .container { display: flex; max-width: 1400px; margin: 0 auto; }
+        .sidebar { width: 280px; background: linear-gradient(180deg, #2c3e50, #34495e); color: white; min-height: 100vh; position: fixed; overflow-y: auto; }
+        .sidebar-header { padding: 20px; background: linear-gradient(135deg, #3498db, #2980b9); text-align: center; }
+        .main-content { margin-left: 280px; padding: 40px; flex: 1; }
+        .chapter { display: none; }
+        .chapter.active { display: block; animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-item { display: block; padding: 15px 20px; color: white; text-decoration: none; border-left: 4px solid transparent; transition: all 0.3s; cursor: pointer; }
+        .nav-item:hover, .nav-item.active { background: rgba(52, 152, 219, 0.3); border-left-color: #3498db; transform: translateX(5px); }
+        .chapter-header { background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 30px; border-radius: 15px; margin-bottom: 30px; border-left: 5px solid #3498db; }
+        .chapter-title { color: #2c3e50; font-size: 2.5em; margin-bottom: 10px; font-weight: 700; }
+        .chapter-subtitle { color: #7f8c8d; font-size: 1.2em; margin-bottom: 20px; }
+        .chapter-meta { display: flex; gap: 30px; font-size: 0.9em; color: #6c757d; flex-wrap: wrap; }
+        .meta-item { display: flex; align-items: center; gap: 8px; }
+        h1 { color: #2c3e50; font-size: 2.5em; }
+        h2 { color: #2980b9; border-bottom: 3px solid #3498db; padding-bottom: 10px; margin: 40px 0 20px 0; }
+        h3 { color: #34495e; margin: 30px 0 15px 0; }
+        h4 { color: #2c3e50; margin: 25px 0 10px 0; }
+        table { border-collapse: collapse; width: 100%; margin: 25px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 15px 12px; text-align: left; border-bottom: 1px solid #dee2e6; }
+        th { background: linear-gradient(135deg, #3498db, #2980b9); color: white; font-weight: 600; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        tr:hover { background-color: #e3f2fd; }
+        .alert { padding: 20px; margin: 25px 0; border-radius: 8px; border-left: 5px solid; }
+        .alert-info { background-color: #e3f2fd; border-color: #2196f3; color: #0d47a1; }
+        .alert-success { background-color: #e8f5e8; border-color: #4caf50; color: #1b5e20; }
+        .alert-warning { background-color: #fff3e0; border-color: #ff9800; color: #e65100; }
+        .alert-danger { background-color: #ffebee; border-color: #f44336; color: #c62828; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin: 30px 0; }
+        .feature-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); transition: transform 0.3s; }
+        .feature-card:hover { transform: translateY(-5px); }
+        .feature-card h4 { margin-top: 0; color: white; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }
+        .stat-card { background: linear-gradient(135deg, #a8edea, #fed6e3); padding: 25px; border-radius: 12px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .stat-number { font-size: 2.2em; font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
+        .stat-label { color: #7f8c8d; font-size: 0.95em; font-weight: 500; }
+        code { background: #f4f4f4; padding: 2px 5px; border-radius: 3px; font-family: "Consolas", "Monaco", monospace; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 20px 0; line-height: 1.4; }
+        pre code { background: none; padding: 0; color: inherit; }
+        .comment { color: #95a5a6; }
+        .function { color: #3498db; }
+        .string { color: #2ecc71; }
+        ul, ol { margin: 15px 0; padding-left: 25px; }
+        li { margin: 8px 0; }
+        .progress-indicator { background: #ecf0f1; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .progress-bar { background: #3498db; height: 8px; border-radius: 4px; margin: 10px 0; transition: width 0.3s ease; }
+        .progress-text { font-size: 0.9em; color: #7f8c8d; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Survey Analysis Vignette</h3>
+            <p>Complete Psychometric Toolkit</p>
+        </div>
+        <nav>
+            <a class="nav-item active" onclick="showChapter('overview')">📋 Overview</a>
+            <a class="nav-item" onclick="showChapter('data-prep')">1️⃣ Data Preparation</a>
+            <a class="nav-item" onclick="showChapter('descriptives')">2️⃣ Descriptive Analytics</a>
+            <a class="nav-item" onclick="showChapter('reliability')">3️⃣ Reliability & EFA</a>
+            <a class="nav-item" onclick="showChapter('cfa')">4️⃣ Confirmatory Factor Analysis</a>
+            <a class="nav-item" onclick="showChapter('invariance')">5️⃣ Measurement Invariance</a>
+            <a class="nav-item" onclick="showChapter('rasch')">6️⃣ Rasch Analysis</a>
+            <a class="nav-item" onclick="showChapter('conclusion')">📚 Best Practices</a>
+        </nav>
+        <div class="progress-indicator">
+            <div class="progress-bar" style="width: 50%"></div>
+            <div class="progress-text">4 of 8 chapters complete</div>
+        </div>
+    </div>
+    <div class="main-content">
+        <div id="overview" class="chapter active">
+            <div class="chapter-header">
+                <h1 class="chapter-title">Survey Analysis Application</h1>
+                <p class="chapter-subtitle">A Complete Psychometric Analysis Toolkit</p>
+            </div>
+            <h2>Application Overview</h2>
+            <p>This application provides a comprehensive suite of psychometric analysis tools following modern best practices in survey research and measurement theory.</p>
+        </div>
+        <div id="data-prep" class="chapter">
+            <div class="chapter-header">
+                <h1 class="chapter-title">Chapter 1: Data Preparation</h1>
+                <p class="chapter-subtitle">Foundation for All Psychometric Analyses</p>
+            </div>
+            <h2>Overview</h2>
+            <p>The Data Preparation module serves as the foundation for all subsequent psychometric analyses in this application. It transforms raw survey data into a standardized format while preserving rich contextual information needed for meaningful analysis.</p>
+            <h2>Expected Data Format</h2>
+            <h3>Input Data Structure</h3>
+            <p>The application expects survey data in <strong>long format</strong> with the following essential columns:</p>
+            <table>
+                <thead>
+                    <tr><th>Column Name</th><th>Data Type</th><th>Description</th><th>Example Values</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>respondentID</code></td><td>Character/Numeric</td><td>Unique identifier for each survey participant</td><td>"12345", "RESP_001"</td></tr>
+                    <tr><td><code>constructName</code></td><td>Character</td><td>Human-readable name of the construct</td><td>"Academic Engagement"</td></tr>
+                    <tr><td><code>constructID</code></td><td>Character</td><td>Alphanumeric identifier for construct grouping</td><td>"C1", "C2", "C3"</td></tr>
+                    <tr><td><code>rCode</code></td><td>Character</td><td>Unique identifier for each survey item</td><td>"Q1", "AE_01"</td></tr>
+                    <tr><td><code>response_value</code></td><td>Numeric</td><td>The actual survey response</td><td>1, 2, 3, 4, 5</td></tr>
+                    <tr><td><code>qText</code></td><td>Character</td><td>Full text of the survey question</td><td>"I enjoy learning new things"</td></tr>
+                </tbody>
+            </table>
+            <h2>Sample Data Creation</h2>
+            <p>Here's how to create sample data that matches the expected format:</p>
+            <pre><code><span class="comment"># Create sample survey data</span>
+<span class="function">library</span>(dplyr)
+<span class="function">library</span>(tidyr)
+
+<span class="comment"># Define constructs and items</span>
+constructs <- data.frame(
+  constructID = c(<span class="string">"C1"</span>, <span class="string">"C1"</span>, <span class="string">"C1"</span>, <span class="string">"C2"</span>, <span class="string">"C2"</span>),
+  constructName = c(rep(<span class="string">"Academic Engagement"</span>, 3), rep(<span class="string">"Teacher Support"</span>, 2)),
+  rCode = c(<span class="string">"AE_01"</span>, <span class="string">"AE_02"</span>, <span class="string">"AE_03"</span>, <span class="string">"TS_01"</span>, <span class="string">"TS_02"</span>),
+  qText = c(<span class="string">"I enjoy learning new things"</span>, <span class="string">"I feel motivated"</span>, 
+            <span class="string">"Material is interesting"</span>, <span class="string">"Teacher cares"</span>, <span class="string">"Teacher helps"</span>)
+)</code></pre>
+            <h2>Module Capabilities</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>📁 File Formats</h4>
+                    <p>.fst files (high-performance binary)<br>.csv files (comma-separated values)</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🎯 Auto-Detection</h4>
+                    <p>Intelligent column recognition and pre-selection for common formats</p>
+                </div>
+                <div class="feature-card">
+                    <h4>👥 Demographic Config</h4>
+                    <p>Sophisticated demographic variable configuration with value mapping</p>
+                </div>
+                <div class="feature-card">
+                    <h4>✅ Validation</h4>
+                    <p>Comprehensive data quality checks and error handling</p>
+                </div>
+            </div>
+            <div class="alert alert-success">
+                <h4>✅ Best Practices</h4>
+                <ul>
+                    <li><strong>Consistent Naming:</strong> Use systematic naming conventions for items within constructs</li>
+                    <li><strong>Clear Documentation:</strong> Include meaningful question text for interpretability</li>
+                    <li><strong>Demographic Planning:</strong> Choose meaningful categories that avoid small group sizes</li>
+                    <li><strong>Missing Data Strategy:</strong> Document and consistently handle different types of missingness</li>
+                </ul>
+            </div>
+        </div>
+        <div id="descriptives" class="chapter">
+            <div class="chapter-header">
+                <h1 class="chapter-title">Chapter 2: Descriptive Analytics</h1>
+                <p class="chapter-subtitle">Comprehensive Exploratory Data Analysis</p>
+            </div>
+            <h2>Overview</h2>
+            <p>The Descriptive Analytics module provides comprehensive exploratory data analysis for survey research. It automatically generates three levels of analysis: question-level statistics, construct-level summaries, and demographic group comparisons.</p>
+            <h2>Three-Tier Analysis Framework</h2>
+            <table>
+                <thead>
+                    <tr><th>Analysis Level</th><th>Aggregation</th><th>Key Statistics</th><th>Primary Use</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Question-Level</td><td>Individual items</td><td>Mean, SD, Skew, Kurtosis</td><td>Item quality assessment</td></tr>
+                    <tr><td>Construct-Level</td><td>Grouped by construct</td><td>Mean, SD, Range, Item count</td><td>Scale-level overview</td></tr>
+                    <tr><td>Demographic</td><td>By group membership</td><td>Group means, Differences, p-values</td><td>Group comparisons</td></tr>
+                </tbody>
+            </table>
+            <h2>Statistical Quality Indicators</h2>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-number">|1.0|</div><div class="stat-label">Skewness Threshold</div></div>
+                <div class="stat-card"><div class="stat-number">3.0</div><div class="stat-label">Kurtosis Threshold</div></div>
+                <div class="stat-card"><div class="stat-number">0.05</div><div class="stat-label">Significance Level</div></div>
+                <div class="stat-card"><div class="stat-number">�2SD</div><div class="stat-label">Effect Size Guide</div></div>
+            </div>
+            <h2>Group Comparison Framework</h2>
+            <table>
+                <thead>
+                    <tr><th>Number of Groups</th><th>Test Used</th><th>Purpose</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>2 Groups</td><td>Independent t-test</td><td>Compare means between two groups</td></tr>
+                    <tr><td>3+ Groups</td><td>One-way ANOVA</td><td>Test for differences across multiple groups</td></tr>
+                    <tr><td>Statistical Output</td><td>p-value + effect size</td><td>Both significance and practical importance</td></tr>
+                </tbody>
+            </table>
+            <div class="alert alert-info">
+                <h4>Interpretation Guidelines</h4>
+                <ul>
+                    <li><strong>�0.0 to �0.2:</strong> Minimal practical difference</li>
+                    <li><strong>�0.2 to �0.5:</strong> Small but noteworthy difference</li>
+                    <li><strong>�0.5 to �0.8:</strong> Medium, educationally significant difference</li>
+                    <li><strong>�0.8+:</strong> Large, highly significant difference requiring attention</li>
+                </ul>
+            </div>
+            <h2>Interactive Visualizations</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🗺️ Heat Maps</h4>
+                    <p>Color-coded visualization of group differences across constructs with interactive tooltips</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Box Plots</h4>
+                    <p>Full distribution view showing medians, quartiles, and outliers by demographic groups</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔍 Navigation Tools</h4>
+                    <p>Previous/Next buttons and dropdown selectors for systematic exploration</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📈 Pattern Detection</h4>
+                    <p>Quick identification of systematic differences and trends across survey items</p>
+                </div>
+            </div>
+            <div class="alert alert-warning">
+                <h4>⚠️ Important Note</h4>
+                <p>Statistical significance (p < 0.05) doesn't equal practical importance. With large samples, even tiny differences can be "significant." Always consider effect sizes and practical context.</p>
+            </div>
+        </div>
+        <div id="reliability" class="chapter">
+            <div class="chapter-header">
+                <h1 class="chapter-title">Chapter 3: Reliability & Factor Analysis</h1>
+                <p class="chapter-subtitle">Internal Consistency & Factor Structure Discovery</p>
+            </div>
+        </div>
+        <div id="reliability" class="chapter">
+            <div class="chapter-header">
+                <h1 class="chapter-title">Chapter 3: Reliability & EFA</h1>
+                <p class="chapter-subtitle">Internal Consistency & Factor Structure Discovery</p>
+            </div>
+            <h2>Overview</h2>
+            <p>This module combines classical test theory reliability assessment with modern exploratory factor analysis to evaluate measurement quality and discover underlying factor structures.</p>
+            <div class="alert alert-info">
+                <h4>📝 Development Status</h4>
+                <p>This chapter is currently in development. The framework and key concepts are outlined above, with detailed technical content to be added in future updates.</p>
+            </div>
+        </div>
+        <div id="cfa" class="chapter">
+            <div class="chapter-header">
+                <h1 class="chapter-title">Chapter 4: Confirmatory Factor Analysis</h1>
+                <p class="chapter-subtitle">Testing Theoretical Measurement Models</p>
+            </div>
+            <h2>Overview</h2>
+            <p>The CFA module tests specific theoretical models against your data, providing rigorous evaluation of measurement model fit and factor structure validity.</p>
+            <div class="alert alert-info">
+                <h4>📝 Development Status</h4>
+                <p>This chapter is currently in development. The framework and key concepts are outlined above, with detailed technical content to be added in future updates.</p>
+            </div>
+        </div>
+        <div id="invariance" class="chapter">
+            <div class="chapter-header">
+                <h1 class="chapter-title">Chapter 5: Measurement Invariance</h1>
+                <p class="chapter-subtitle">Testing Group Equivalence of Measurements</p>
+            </div>
+            <h2>Overview</h2>
+            <p>Measurement Invariance testing determines whether your survey items function equivalently across different demographic groups - a crucial prerequisite for valid group comparisons.</p>
+            <div class="alert alert-info">
+                <h4>📝 Development Status</h4>
+                <p>This chapter is currently in development. The framework and key concepts are outlined above, with detailed technical content to be added in future updates.</p>
+            </div>
+        </div>
+        <div id="rasch" class="chapter">
+            <div class="chapter-header">
+                <h1 class="chapter-title">Chapter 6: Rasch Analysis</h1>
+                <p class="chapter-subtitle">Interval-Level Measurement Modeling</p>
+            </div>
+            <h2>Overview</h2>
+            <p>The Rasch Analysis module provides the most sophisticated measurement approach, placing both persons and items on the same interval-level scale.</p>
+            <div class="alert alert-info">
+                <h4>📝 Development Status</h4>
+                <p>This chapter is currently in development. The framework and key concepts are outlined above, with detailed technical content to be added in future updates.</p>
+            </div>
+        </div>
+        <div id="conclusion" class="chapter">
+            <div class="chapter-header">
+                <h1 class="chapter-title">Chapter 📚: Best Practices & Conclusion</h1>
+                <p class="chapter-subtitle">Synthesis and Recommendations</p>
+            </div>
+            <h2>Overview</h2>
+            <p>This final chapter synthesizes insights across all modules and provides comprehensive guidance for conducting rigorous psychometric analyses.</p>
+            <div class="alert alert-info">
+                <h4>📝 Development Status</h4>
+                <p>This chapter is currently in development. The framework and key concepts are outlined above, with detailed technical content to be added in future updates.</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        function showChapter(chapterId) {
+            var chapters = document.querySelectorAll(".chapter");
+            chapters.forEach(function(chapter) { chapter.classList.remove("active"); });
+            document.getElementById(chapterId).classList.add("active");
+            var navItems = document.querySelectorAll(".nav-item");
+            navItems.forEach(function(item) { item.classList.remove("active"); });
+            event.target.classList.add("active");
+            window.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>
